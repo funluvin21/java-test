@@ -1,0 +1,80 @@
+<< 1 byte를 byte 배열 형으로 선언>> 
+byte[] packet = ByteBuffer.allocate(1).put(command).array();
+
+※ 자바에서 byte는 sign이기 때문에 범위 표현이 -128 ~ 127 이다.
+그래서 (byte) 0xFF를 int에 아무 것도 안하고 그대로 대입하면 -1이 나와 버린다.
+
+<< byte (4byte) -> int >>
+ public int byte2Int(byte[] source) {
+        int source_1 = source[0] & 0xFF;
+        int source_2 = source[1] & 0xFF;
+        int source_3 = source[2] & 0xFF;
+        int source_4 = source[3] & 0xFF;
+ 
+        return ((source_1 << 24) + (source_2 << 16) + (source_3 << 8) + (source_4 << 0));
+    }
+
+<< byte * 4 -> int >> (byte 4개 조립)
+public int byteArray2Int(byte src_1,byte src_2,byte src_3, byte src_4) 
+{
+    byte[] temp_byte_array = new byte[]{src_1, src_2, src_3, byte src_4};
+    return java.nio.ByteBuffer.wrap(temp_byte_array).getInt();
+}
+
+<< String -> byte (Array) >>
+String string_1 = “Hello World!”;
+// 변수 string_1의 바이트 값 (아스키 코드)
+byte[] byteBuffer = string_1.getBytes();
+
+<< byte (Array) -> String >> (1)
+// 바이트 배열 자체의 문자열 값
+// [B@ca0b6
+String buffersToString = byteBuffer.toString(); 
+// 바이트 배열을 문자열로 변환한 값
+// Hello World!
+String string_2 = new String(byteBuffer);
+
+<< byte (Array) -> String >> (2)
+public String byteArray2String(byte[] data)
+{
+    if (data != null && data.length > 0) {
+        final StringBuilder stringBuilder = new StringBuilder(data.length);
+        
+        for (byte byteChar : data)
+            stringBuilder.append(String.format("%02X ", byteChar));
+        
+    return stringBuilder.toString();
+}
+    return null;
+}
+(출처 : 안드로이드 Develop 사이트에서 제공하는 BluetoothGatt 오픈 소스)
+(위 코드 보다 더 좋은 방법이 있음......)
+
+
+<< List<Integer> -> int (Array) >>
+public int[] convertIntegers(List<Integer> integers)
+{
+    int[] ret = new int[integers.size()];
+    for (int i=0; i < ret.length; i++)
+    {
+        ret[i] = integers.get(i).intValue();
+    }
+    return ret;
+}
+
+public static int[] convertIntegers(List<Integer> integers)
+{
+    int[] ret = new int[integers.size()];
+    Iterator<Integer> iterator = integers.iterator();
+    for (int i = 0; i < ret.length; i++)
+    {
+        ret[i] = iterator.next().intValue();
+    }
+    return ret;
+}
+
+<< Double value 소수점 맞추기 >>
+DecimalFormat rateFormat = new DecimalFormat("0.00");
+rateFormat.setRoundingMode(RoundingMode.HALF_EVEN);
+Double dv = 1.145;
+rateFormat.format(dv);
