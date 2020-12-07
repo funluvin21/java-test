@@ -64,21 +64,40 @@ public class Test {
 그럼 빅 엔디언에서 리틀 엔디언으로 혹은 리틀 엔디언에서 빅 엔디언으로 바꾸는 방법은?
 
 그렇습니다. 그냥 뒤집어 주기만 하면 됩니다.
+***************************************************************************
+c#의 경우
 class Program
 {
 static void Main(string[] args)
 {
-byte[] data = BitConverter.GetBytes(1000);
-// 빅 엔디언으로
-Array.Reverse(data);
-foreach (byte b in data)
-{
-Console.Write(b);
-Console.Write("\t");
+       byte[] data = BitConverter.GetBytes(1000);
+       // 빅 엔디언으로
+       Array.Reverse(data);
+       foreach (byte b in data)
+       {
+              Console.Write(b);
+              Console.Write("\t");
+       }
+       Console.WriteLine("Press any key...");
+       Console.ReadKey();
 }
-Console.WriteLine("Press any key...");
-Console.ReadKey();
 }
+***************************************************************************
+자바의 경우는 ByteBuffer에 옵션이 있네요.. 물론 byte 배열을 뒤집어도 상관없습니다.
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+public class Test {
+       public static void main(String... args) {
+              ByteBuffer data = ByteBuffer.allocate(4);
+              // 리틀 엔디언으로!!
+              data.order(ByteOrder.LITTLE_ENDIAN);
+              data.putInt(1000);
+              for (byte b : data.array()) {
+                     System.out.print(b < 0 ? b + 256 : b);
+                     System.out.print("\t");
+              }
+       }
 }
+***************************************************************************
 
 
