@@ -1,0 +1,84 @@
+출처: https://nowonbun.tistory.com/512 [명월 일지]
+[정보 보 및 잡담] byte 배열 순서 엔디언(endian)
+
+안녕하세요. 명월입니다.
+
+이 글은 byte 배열 순서 엔디언(endian)에 대한 글입니다.
+endian은 간단하게 이야기하면 binary의 데이터를 배열하는 방법이며, 그 뜻은 예로 int 객체를 byte로 변환한다고 하면 그 byte데이터를 나열하는 순서입니다.
+사실 제가 이 endian의 뜻을 알기 전까지 단순히 프로그램 언어별로 byte로 변환할 경우 데이터가 다르다. 그래서 그 언어에 맞게 배열을 변환해야 한다고 생각하고 있었습니다.
+
+예를 들면, 예전에 java에서 int형의 데이터를 byte로 변환해서 C#으로 보낼 경우, 인식을 못했기 때문에 C#에 있는 Bitconvert를 모방하여 java에서 변환하는 소스를 만든 적이 있었습니다.
+
+링크 - [Java] BitConverter
+
+지금 생각하면 참 바보같은 일이네요... 단순히 java와 C#이 배열하는 endian이 다를 뿐이었지 이렇게 복잡하게 만들 필요가 없었습니다.
+간단하게 endian에 대해 설명을 하면 빅 엔디언(Big-endian), 리틀 엔디언(Little-endian), 미들 엔디언(Middle-endian)이 존재합니다.
+빅 엔디언의 경우는 값의 표시가 12 34 56 78 이 있으면 12 34 56 78로 표시가 되는 것이고 리틀 엔디언의 경우는 78 56 34 12로 표시되는 형태였습니다.
+
+미들 엔디언은 빅 엔디언과 리틀 엔디언의 짬뽕이라고 합니다.
+
+각기 빅 엔디언과 리틀 엔디언은 사람의 인식 과정의 편함으로 가독성이 좋냐? 먼저의 값을 내보내서 계산의 빠름이 좋냐의 차이라고 합니다.
+제가 보기엔 크게 차이는 없다고 생각되는데.. 어쨋든 이게 언어 별로 byte형으로 변환할 때 채택하는 엔디언이 다르다는게 문제입니다.
+(통일했으면 하는데.. 프로그램이 많이 발전했어도 아직 이런 문제가 많이 있네요..)
+
+***************************************************************************
+C#은 일단 기본적으로 리틀 엔디언을 사용합니다. 
+자바의 경우는 빅 엔디언이 기본이네요.
+참고로 문자열 UTF-8는 엔디언의 구분이 없다고 합니다.
+***************************************************************************
+
+참고 - http://mwultong.blogspot.com/2006/05/little-endian-big-endian.html
+       https://brownbears.tistory.com/124
+
+그럼 엔디언의 차이를 디버깅을 통해 알아보겠습니다.
+***************************************************************************
+c#의 경우  C#은 딱 봐도 앞자리부터 수가 채워지는 것 보니 리틀 엔디언 같습니다.
+class Program
+{
+  static void Main(string[] args)
+  {
+    byte[] data = BitConverter.GetBytes(1000);
+    foreach (byte b in data)
+    {
+      Console.Write(b);
+      Console.Write("\t");
+    }
+    Console.WriteLine("Press any key...");
+    Console.ReadKey();
+  }
+}
+***************************************************************************
+java의 경우  결과가 뒤에서 부터 채워지는 것 보니 빅 엔디언 같습니다.
+import java.nio.ByteBuffer;
+public class Test {
+  public static void main(String... args) {
+    ByteBuffer data = ByteBuffer.allocate(4);
+    data.putInt(1000);
+    for (byte b : data.array()) {
+      System.out.print(b < 0 ? b + 256 : b);
+      System.out.print("\t");
+    }
+  }
+}
+***************************************************************************
+그럼 빅 엔디언에서 리틀 엔디언으로 혹은 리틀 엔디언에서 빅 엔디언으로 바꾸는 방법은?
+
+그렇습니다. 그냥 뒤집어 주기만 하면 됩니다.
+class Program
+{
+static void Main(string[] args)
+{
+byte[] data = BitConverter.GetBytes(1000);
+// 빅 엔디언으로
+Array.Reverse(data);
+foreach (byte b in data)
+{
+Console.Write(b);
+Console.Write("\t");
+}
+Console.WriteLine("Press any key...");
+Console.ReadKey();
+}
+}
+
+
